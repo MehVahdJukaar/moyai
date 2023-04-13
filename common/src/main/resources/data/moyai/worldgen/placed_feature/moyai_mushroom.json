@@ -6,8 +6,15 @@
     },
     {
       "type": "minecraft:height_range",
-      "below_top": "136",
-      "above_bottom": "127"
+      "height": {
+        "type": "minecraft:uniform",
+        "min_inclusive": {
+          "above_bottom": 127
+        },
+        "max_inclusive": {
+          "above_bottom": 136
+        }
+      }
     },
     {
       "type": "minecraft:rarity_filter",
