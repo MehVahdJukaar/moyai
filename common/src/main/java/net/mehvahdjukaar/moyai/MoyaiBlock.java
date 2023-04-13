@@ -6,8 +6,8 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -56,10 +56,12 @@ public class MoyaiBlock extends FallingBlock {
     public enum RotationMode implements StringRepresentable {
         STATIC, ROTATING_LEFT, ROTATING_RIGHT;
 
+        @Override
         public String toString() {
             return this.getSerializedName();
         }
 
+        @Override
         public String getSerializedName() {
             return this.name().toLowerCase(Locale.ROOT);
         }
@@ -98,7 +100,7 @@ public class MoyaiBlock extends FallingBlock {
     private static long LAST_GREETED_TIME = -24000;
 
     public static boolean maybeEatSoap(ItemStack stack, BlockState state, BlockPos pos, Level level, @Nullable Player player) {
-        if (Registry.ITEM.getKey(stack.getItem()).getPath().equals("soap") && Moyai.SUPP_INSTALLED) {
+        if (BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().equals("soap") && Moyai.SUPP_INSTALLED) {
 
             BlockPos facingPos = pos.relative(state.getValue(FACING));
             if (level.getBlockState(facingPos).isAir()) {
@@ -107,7 +109,7 @@ public class MoyaiBlock extends FallingBlock {
 
                     player.displayClientMessage(Component.translatable("message.moyai.soap"), true);
                 } else {
-                    level.setBlockAndUpdate(facingPos, Registry.BLOCK.get(
+                    level.setBlockAndUpdate(facingPos, BuiltInRegistries.BLOCK.get(
                             new ResourceLocation("supplementaries:bubble_block")).defaultBlockState());
                 }
                 return true;
@@ -225,7 +227,7 @@ public class MoyaiBlock extends FallingBlock {
             irongolem.setPlayerCreated(playerCreated);
             irongolem.setItemSlot(EquipmentSlot.HEAD, new ItemStack(this));
 
-            irongolem.moveTo((double) blockpos.getX() + 0.5D, (double) blockpos.getY() + 0.05D, (double) blockpos.getZ() + 0.5D, 0.0F, 0.0F);
+            irongolem.moveTo(blockpos.getX() + 0.5D, blockpos.getY() + 0.05D, blockpos.getZ() + 0.5D, 0.0F, 0.0F);
             pLevel.addFreshEntity(irongolem);
 
             for (ServerPlayer player : pLevel.getEntitiesOfClass(ServerPlayer.class, irongolem.getBoundingBox().inflate(5.0D))) {
@@ -308,8 +310,8 @@ public class MoyaiBlock extends FallingBlock {
     @Override
     public boolean triggerEvent(BlockState pState, Level pLevel, BlockPos pPos, int pId, int pParam) {
         if (pId == 0) {
-            pLevel.addParticle(ParticleTypes.NOTE, (double) pPos.getX() + 0.5D, (double) pPos.getY() + 1.2D + 1, (double) pPos.getZ() + 0.5D, (double) pParam / 24.0D, 0.0D, 0.0D);
-            if (pLevel.isClientSide){
+            pLevel.addParticle(ParticleTypes.NOTE, pPos.getX() + 0.5D, pPos.getY() + 1.2D + 1, pPos.getZ() + 0.5D, pParam / 24.0D, 0.0D, 0.0D);
+            if (pLevel.isClientSide) {
                 setShaking(pPos, pParam);
             }
             return true;
