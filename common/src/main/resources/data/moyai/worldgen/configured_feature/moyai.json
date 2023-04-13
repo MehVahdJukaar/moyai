@@ -1,36 +1,135 @@
 {
-  "type": "minecraft:simple_random_selector",
   "config": {
-    "size": 3,
-    "discard_chance_on_air_exposure": 0,
-    "targets": [
+    "features": [
       {
-        "state": {
-          "Name": "randomium:randomium_ore"
+        "feature": {
+          "config": {
+            "to_place": {
+              "state": {
+                "Properties": {
+                  "mode": "static",
+                  "facing": "north"
+                },
+                "Name": "moyai:moyai"
+              },
+              "type": "minecraft:simple_state_provider"
+            }
+          },
+          "type": "minecraft:simple_block"
         },
-        "target": {
-          "predicate_type": "minecraft:tag_match",
-          "tag": "minecraft:stone_ore_replaceables"
-        }
+        "placement": [
+          {
+            "predicate": {
+              "state": {
+                "Properties": {
+                  "mode": "static",
+                  "facing": "north"
+                },
+                "Name": "moyai:moyai"
+              },
+              "type": "minecraft:would_survive"
+            },
+            "type": "minecraft:block_predicate_filter"
+          }
+        ]
       },
       {
-        "state": {
-          "Name": "randomium:randomium_ore_deepslate"
+        "feature": {
+          "config": {
+            "to_place": {
+              "state": {
+                "Properties": {
+                  "mode": "static",
+                  "facing": "south"
+                },
+                "Name": "moyai:moyai"
+              },
+              "type": "minecraft:simple_state_provider"
+            }
+          },
+          "type": "minecraft:simple_block"
         },
-        "target": {
-          "predicate_type": "minecraft:tag_match",
-          "tag": "minecraft:deepslate_ore_replaceables"
-        }
+        "placement": [
+          {
+            "predicate": {
+              "state": {
+                "Properties": {
+                  "mode": "static",
+                  "facing": "south"
+                },
+                "Name": "moyai:moyai"
+              },
+              "type": "minecraft:would_survive"
+            },
+            "type": "minecraft:block_predicate_filter"
+          }
+        ]
       },
       {
-        "state": {
-          "Name": "randomium:randomium_ore_end"
+        "feature": {
+          "config": {
+            "to_place": {
+              "state": {
+                "Properties": {
+                  "mode": "static",
+                  "facing": "east"
+                },
+                "Name": "moyai:moyai"
+              },
+              "type": "minecraft:simple_state_provider"
+            }
+          },
+          "type": "minecraft:simple_block"
         },
-        "target": {
-          "predicate_type": "minecraft:block_match",
-          "block": "minecraft:end_stone"
-        }
+        "placement": [
+          {
+            "predicate": {
+              "state": {
+                "Properties": {
+                  "mode": "static",
+                  "facing": "east"
+                },
+                "Name": "moyai:moyai"
+              },
+              "type": "minecraft:would_survive"
+            },
+            "type": "minecraft:block_predicate_filter"
+          }
+        ]
+      },
+      {
+        "feature": {
+          "config": {
+            "to_place": {
+              "state": {
+                "Properties": {
+                  "mode": "static",
+                  "facing": "west"
+                },
+                "Name": "moyai:moyai"
+              },
+              "type": "minecraft:simple_state_provider"
+            }
+          },
+          "type": "minecraft:simple_block"
+        },
+        "placement": [
+          {
+            "predicate": {
+              "state": {
+                "Properties": {
+                  "mode": "static",
+                  "facing": "west"
+                },
+                "Name": "moyai:moyai"
+              },
+              "type": "minecraft:would_survive"
+            },
+            "type": "minecraft:block_predicate_filter"
+          }
+        ]
       }
     ]
-  }
+  },
+  "type": "minecraft:simple_random_selector"
 }

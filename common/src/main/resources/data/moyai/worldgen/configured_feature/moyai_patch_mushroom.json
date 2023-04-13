@@ -1,0 +1,9 @@
+{
+  "config": {
+    "tries": 40,
+    "xz_spread": 9,
+    "y_spread": 3,
+    "feature": "moyai:moyai"
+  },
+  "type": "minecraft:random_patch"
+}

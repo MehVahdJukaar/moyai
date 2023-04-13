@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -46,7 +45,6 @@ public class Moyai {
     public static final boolean SUPP_INSTALLED = PlatHelper.isModLoaded("supplementaries");
 
     public static void commonInit() {
-        ModWorldgen.init();
         RegHelper.addItemsToTabsRegistration(Moyai::onAddItemToTabs);
     }
 
@@ -70,8 +68,6 @@ public class Moyai {
             }
         }));
     }
-
-
 
 
     public static boolean onNotePlayed(LevelAccessor level, BlockPos pos, BlockState blockState) {
