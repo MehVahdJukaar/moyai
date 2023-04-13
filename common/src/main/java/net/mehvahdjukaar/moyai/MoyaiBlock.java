@@ -98,7 +98,7 @@ public class MoyaiBlock extends FallingBlock {
     private static long LAST_GREETED_TIME = -24000;
 
     public static boolean maybeEatSoap(ItemStack stack, BlockState state, BlockPos pos, Level level, @Nullable Player player) {
-        if (Registry.ITEM.getKey(stack.getItem()).getPath().equals("soap") && Moyai.supplementaries) {
+        if (Registry.ITEM.getKey(stack.getItem()).getPath().equals("soap") && Moyai.SUPP_INSTALLED) {
 
             BlockPos facingPos = pos.relative(state.getValue(FACING));
             if (level.getBlockState(facingPos).isAir()) {

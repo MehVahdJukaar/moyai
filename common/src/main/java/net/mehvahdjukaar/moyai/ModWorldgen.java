@@ -34,8 +34,8 @@ public class ModWorldgen {
     private static Holder<PlacedFeature> makeSimpleMoyaiFeature(Direction dir) {
         return PlacementUtils.filtered(
                 Feature.SIMPLE_BLOCK,
-                new SimpleBlockConfiguration(SimpleStateProvider.simple(Moyai.MOYAI.get().defaultBlockState().setValue(MoyaiBlock.FACING, dir))),
-                BlockPredicate.wouldSurvive(Moyai.MOYAI.get().defaultBlockState()
+                new SimpleBlockConfiguration(SimpleStateProvider.simple(Moyai.MOYAI_BLOCK.get().defaultBlockState().setValue(MoyaiBlock.FACING, dir))),
+                BlockPredicate.wouldSurvive(Moyai.MOYAI_BLOCK.get().defaultBlockState()
                         .setValue(MoyaiBlock.FACING, dir).setValue(MoyaiBlock.MODE, MoyaiBlock.RotationMode.STATIC), Vec3i.ZERO));
     }
 
@@ -102,5 +102,5 @@ public class ModWorldgen {
                             InSquarePlacement.spread(),
                             BiomeFilter.biome()));
 
-
+//todo:json
 }

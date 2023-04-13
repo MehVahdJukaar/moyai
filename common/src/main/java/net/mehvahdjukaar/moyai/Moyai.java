@@ -15,6 +15,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.NoteBlock;
+import net.minecraft.world.level.block.SugarCaneBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -36,14 +37,14 @@ public class Moyai {
             () -> new SoundEvent(res("record.moyai_boom")));
     public static final Supplier<SoundEvent> MOYAI_ROTATE = RegHelper.registerSound(res("moyai_rotate"),
             () -> new SoundEvent(res("block.moyai_rotate")));
-    public static final Supplier<Block> MOYAI = RegHelper.registerBlock(res("moyai"), MoyaiBlock::new);
+    public static final Supplier<Block> MOYAI_BLOCK = RegHelper.registerBlock(res("moyai"), MoyaiBlock::new);
     public static final Supplier<BlockItem> MOYAI_ITEM = RegHelper.registerItem(res("moyai"), () ->
-            new BlockItem(MOYAI.get(), (new Item.Properties()).rarity(Rarity.RARE).tab(CreativeModeTab.TAB_BUILDING_BLOCKS)));
+            new BlockItem(MOYAI_BLOCK.get(), (new Item.Properties()).rarity(Rarity.RARE).tab(CreativeModeTab.TAB_BUILDING_BLOCKS)));
 
     public static final Supplier<GameEvent> MOYAI_BOOM_EVENT = RegHelper.register(res("moyai_boom"),
             () -> new GameEvent("moyai_boom", 16), Registry.GAME_EVENT);
 
-    public static final boolean supplementaries = PlatformHelper.isModLoaded("supplementaries");
+    public static final boolean SUPP_INSTALLED = PlatformHelper.isModLoaded("supplementaries");
 
     public static void commonInit() {
         ModWorldgen.init();
@@ -56,7 +57,7 @@ public class Moyai {
             protected ItemStack execute(BlockSource source, ItemStack stack) {
                 BlockPos pos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
                 BlockState state = source.getLevel().getBlockState(pos);
-                if (state.is(MOYAI.get())) {
+                if (state.is(MOYAI_BLOCK.get())) {
                     if (MoyaiBlock.maybeEatSoap(stack, state, pos, source.getLevel(), null)) {
                         return stack;
                     }
