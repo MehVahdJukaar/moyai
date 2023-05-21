@@ -50,6 +50,7 @@ public class Moyai {
 
     private static void onAddItemToTabs(RegHelper.ItemToTabEvent event) {
         event.add(CreativeModeTabs.FUNCTIONAL_BLOCKS, MOYAI_BLOCK.get());
+        event.add(CreativeModeTabs.NATURAL_BLOCKS, MOYAI_BLOCK.get());
     }
 
     public static void commonSetup() {

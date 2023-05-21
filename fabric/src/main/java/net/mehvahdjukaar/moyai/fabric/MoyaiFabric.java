@@ -7,6 +7,7 @@ import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moyai.Moyai;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.GenerationStep;
 
@@ -23,7 +24,7 @@ public class MoyaiFabric implements ModInitializer {
                 GenerationStep.Decoration.UNDERGROUND_DECORATION,
                 ResourceKey.create(Registries.PLACED_FEATURE, Moyai.res("moyai_mushroom")));
 
-        BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.BEACH),
+        BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_BEACH),
                 GenerationStep.Decoration.UNDERGROUND_DECORATION,
                 ResourceKey.create(Registries.PLACED_FEATURE, Moyai.res("moyai_beach")));
 
