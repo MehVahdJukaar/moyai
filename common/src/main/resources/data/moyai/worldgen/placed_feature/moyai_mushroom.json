@@ -2,6 +2,10 @@
   "feature": "moyai:moyai_patch_beach",
   "placement": [
     {
+      "type": "minecraft:rarity_filter",
+      "chance": 6
+    },
+    {
       "type": "minecraft:in_square"
     },
     {
@@ -15,10 +19,6 @@
           "above_bottom": 136
         }
       }
-    },
-    {
-      "type": "minecraft:rarity_filter",
-      "chance": 6
     },
     {
       "type": "minecraft:biome"
