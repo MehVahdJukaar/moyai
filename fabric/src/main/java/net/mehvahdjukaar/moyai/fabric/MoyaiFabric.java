@@ -8,6 +8,7 @@ import net.mehvahdjukaar.moyai.ModWorldgen;
 import net.mehvahdjukaar.moyai.Moyai;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.GenerationStep;
 
@@ -24,7 +25,7 @@ public class MoyaiFabric implements ModInitializer {
                 GenerationStep.Decoration.UNDERGROUND_DECORATION,
                 ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, ModWorldgen.MUSHROOM_MOYAI.getId()));
 
-        BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.BEACH),
+        BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_BEACH),
                 GenerationStep.Decoration.UNDERGROUND_DECORATION,
                 ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, ModWorldgen.BEACH_MOYAI.getId()));
     }
