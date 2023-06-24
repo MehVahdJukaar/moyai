@@ -12,11 +12,11 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraft.world.level.block.NoteBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.block.state.properties.RedstoneSide;
+import net.minecraft.world.level.block.state.properties.WallSide;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 import java.util.Optional;
@@ -80,6 +80,38 @@ public class Moyai {
                 serverLevel.blockEvent(pos.below(), below.getBlock(), 0, i);
                 return true;
             }
+        }
+        return false;
+    }
+
+    public static boolean  temp(BlockState blockState) {
+        if (blockState.getBlock() instanceof WallBlock) {
+            boolean up = blockState.getValue(WallBlock.UP);
+            WallSide east = blockState.getValue(WallBlock.EAST_WALL);
+            WallSide west = blockState.getValue(WallBlock.WEST_WALL);
+            WallSide north = blockState.getValue(WallBlock.NORTH_WALL);
+            WallSide south = blockState.getValue(WallBlock.SOUTH_WALL);
+            if (!up) {
+                if (north != south) {
+                    return true;
+                }
+                if (east != west) {
+                    return true;
+                }
+                if (east != WallSide.NONE && north != WallSide.NONE && north != east) {
+                    return true;
+                }
+            }
+        }
+        if (blockState.getBlock() instanceof RedStoneWireBlock) {
+            var north = blockState.getValue(RedStoneWireBlock.NORTH)!= RedstoneSide.NONE;
+            var south = blockState.getValue(RedStoneWireBlock.SOUTH)!= RedstoneSide.NONE;
+            var east = blockState.getValue(RedStoneWireBlock.EAST)!= RedstoneSide.NONE;
+            var west = blockState.getValue(RedStoneWireBlock.WEST)!= RedstoneSide.NONE;
+            if(north && !south && !east && !west)return true;
+            if(!north && south && !east && !west)return true;
+            if(!north && !south && east && !west)return true;
+            if(!north && !south && !east && west)return true;
         }
         return false;
     }

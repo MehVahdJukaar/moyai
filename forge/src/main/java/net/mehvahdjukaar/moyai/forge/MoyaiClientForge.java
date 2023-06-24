@@ -2,6 +2,8 @@ package net.mehvahdjukaar.moyai.forge;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
+import net.mehvahdjukaar.moonlight.api.platform.ClientPlatformHelper;
+import net.mehvahdjukaar.moonlight.api.platform.PlatformHelper;
 import net.mehvahdjukaar.moyai.Moyai;
 import net.mehvahdjukaar.moyai.MoyaiHeadLayer;
 import net.minecraft.client.Minecraft;
@@ -13,6 +15,7 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
@@ -78,6 +81,7 @@ public class MoyaiClientForge {
         @SubscribeEvent
         public static void onCameraSetup(ViewportEvent.ComputeCameraAngles event) {
             Player p = Minecraft.getInstance().player;
+
             if (p != null && !Minecraft.getInstance().isPaused()) {
                 double maxIntensity = 0;
 

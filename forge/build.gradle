@@ -105,6 +105,6 @@ dependencies {
 
     modImplementation("net.mehvahdjukaar:moonlight-forge:${project.moonlight_version}")
     modImplementation ("curse.maven:jei-238222:3884337")
-    modImplementation ("curse.maven:catalogue-459701:4171024")
-    modImplementation("curse.maven:configured-457570:4011355")
+    //modImplementation ("curse.maven:catalogue-459701:4171024")
+    //modImplementation("curse.maven:configured-457570:4011355")
 }

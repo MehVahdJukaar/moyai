@@ -44,8 +44,8 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Locale;
 
 public class MoyaiBlock extends FallingBlock {
@@ -56,6 +56,7 @@ public class MoyaiBlock extends FallingBlock {
     public enum RotationMode implements StringRepresentable {
         STATIC, ROTATING_LEFT, ROTATING_RIGHT;
 
+        @Override
         public String toString() {
             return this.getSerializedName();
         }
@@ -95,7 +96,7 @@ public class MoyaiBlock extends FallingBlock {
         pBuilder.add(MODE);
     }
 
-    private static long LAST_GREETED_TIME = -24000;
+    private static long lastGreetedTime = -24000;
 
     public static boolean maybeEatSoap(ItemStack stack, BlockState state, BlockPos pos, Level level, @Nullable Player player) {
         if (Registry.ITEM.getKey(stack.getItem()).getPath().equals("soap") && Moyai.SUPP_INSTALLED) {
@@ -133,8 +134,8 @@ public class MoyaiBlock extends FallingBlock {
 
         if (pLevel.isClientSide) {
             long time = pLevel.getDayTime();
-            if (Math.abs(time - LAST_GREETED_TIME) >= 12000) {
-                LAST_GREETED_TIME = time;
+            if (Math.abs(time - lastGreetedTime) >= 12000) {
+                lastGreetedTime = time;
                 pPlayer.displayClientMessage(Component.translatable("message.moyai.angelo"), true);
                 pPlayer.swing(pHand);
             }
