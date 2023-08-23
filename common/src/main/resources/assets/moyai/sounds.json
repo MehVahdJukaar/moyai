@@ -18,5 +18,15 @@
       }
     ],
     "subtitle": "subtitle.moyai.block.moyai_rotate"
+  },
+  "block.moyai_think": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "moyai:block/moyai_think",
+        "stream": false
+      }
+    ],
+    "subtitle": "subtitle.moyai.block.moyai_think"
   }
 }

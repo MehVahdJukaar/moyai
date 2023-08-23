@@ -1,18 +1,33 @@
 {
   "variants": {
-    "facing=north": {
+    "facing=north,bottom=false": {
       "model": "moyai:block/moyai"
     },
-    "facing=east": {
+    "facing=east,bottom=false": {
       "model": "moyai:block/moyai",
       "y": 90
     },
-    "facing=south": {
+    "facing=south,bottom=false": {
       "model": "moyai:block/moyai",
       "y": 180
     },
-    "facing=west": {
+    "facing=west,bottom=false": {
       "model": "moyai:block/moyai",
+      "y": 270
+    },
+    "facing=north,bottom=true": {
+      "model": "moyai:block/moyai_bottom"
+    },
+    "facing=east,bottom=true": {
+      "model": "moyai:block/moyai_bottom",
+      "y": 90
+    },
+    "facing=south,bottom=true": {
+      "model": "moyai:block/moyai_bottom",
+      "y": 180
+    },
+    "facing=west,bottom=true": {
+      "model": "moyai:block/moyai_bottom",
       "y": 270
     }
   }

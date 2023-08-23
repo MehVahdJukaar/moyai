@@ -21,6 +21,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
@@ -28,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.*;
@@ -39,15 +41,18 @@ import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.level.block.state.pattern.BlockPatternBuilder;
 import net.minecraft.world.level.block.state.predicate.BlockStatePredicate;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
 
 public class MoyaiBlock extends FallingBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final BooleanProperty BOTTOM = BlockStateProperties.BOTTOM;
     public static final EnumProperty<RotationMode> MODE = EnumProperty.create("mode", RotationMode.class);
 
 
@@ -69,7 +74,37 @@ public class MoyaiBlock extends FallingBlock {
         super(BlockBehaviour.Properties.copy(Blocks.BASALT)
                 .randomTicks()
                 .strength(5, 4));
-        this.registerDefaultState(this.stateDefinition.any().setValue(MODE, RotationMode.STATIC));
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(BOTTOM, false)
+                .setValue(MODE, RotationMode.STATIC));
+    }
+
+    @Override
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos currentPos, BlockPos neighborPos) {
+        level.scheduleTick(currentPos, this, this.getDelayAfterPlace());
+        if (direction == Direction.UP) {
+            boolean shouldBeBottom = isMoyaiSameFacing(state, neighborState) &&
+                    !isMoyaiSameFacing(state, level.getBlockState(currentPos.below()));
+            if (state.getValue(BOTTOM) != shouldBeBottom) {
+                return state.setValue(BOTTOM, shouldBeBottom);
+            }
+        } else if (direction == Direction.DOWN) {
+            boolean shouldNotBeBottom = isMoyaiSameFacing(state, neighborState);
+            if (shouldNotBeBottom) {
+                if (state.getValue(BOTTOM)) {
+                    return state.setValue(BOTTOM, false);
+                }
+            } else if (isMoyaiSameFacing(state, level.getBlockState(currentPos.above()))) {
+                return state.setValue(BOTTOM, true);
+            }
+
+        }
+        return super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
+    }
+
+    private boolean isMoyaiSameFacing(BlockState state, BlockState neighborState) {
+        return neighborState.is(this) &&
+                neighborState.getValue(FACING) == state.getValue(FACING);
     }
 
     @Override
@@ -84,15 +119,19 @@ public class MoyaiBlock extends FallingBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        return this.defaultBlockState().setValue(MODE, RotationMode.STATIC)
+        Level level = pContext.getLevel();
+        BlockState state = this.defaultBlockState().setValue(MODE, RotationMode.STATIC)
                 .setValue(FACING, pContext.getHorizontalDirection().getOpposite());
+        BlockPos pos = pContext.getClickedPos();
+        boolean bottom = isMoyaiSameFacing(state, level.getBlockState(pos.above())) &&
+                !isMoyaiSameFacing(state, level.getBlockState(pos.below()));
+        return state.setValue(BOTTOM, bottom);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
-        pBuilder.add(FACING);
-        pBuilder.add(MODE);
+        pBuilder.add(FACING, MODE, BOTTOM);
     }
 
     private static long LAST_GREETED_TIME = -24000;
@@ -181,11 +220,13 @@ public class MoyaiBlock extends FallingBlock {
     }
 
     @Override
-    public void onLand(Level level, BlockPos pos, BlockState p_48795_, BlockState state, FallingBlockEntity blockEntity) {
+    public void onLand(Level level, BlockPos pos, BlockState state, BlockState oldState, FallingBlockEntity blockEntity) {
         if (!blockEntity.isSilent()) {
             level.levelEvent(1045, pos, 0);
             this.trySpawnGolem(level, pos, false);
         }
+        BlockState newState = this.updateShape(state, Direction.UP, level.getBlockState(pos.above()), level, pos, pos.above());
+        if (newState != state) level.setBlockAndUpdate(pos, newState);
     }
 
     //golem
@@ -266,43 +307,76 @@ public class MoyaiBlock extends FallingBlock {
 
     @Override
     public boolean isRandomlyTicking(BlockState pState) {
-        return pState.getValue(MODE) == RotationMode.STATIC;
+        return !pState.getValue(BOTTOM);
     }
 
     @Override
     public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, RandomSource pRandom) {
         //only on full moon
-        if (pLevel.getMoonPhase() == 0 && pLevel.isNight()) {
-            if (pLevel.random.nextBoolean()) {
-                pLevel.setBlock(pPos, pState.setValue(MODE, RotationMode.ROTATING_LEFT)
-                        .setValue(FACING, pState.getValue(FACING).getCounterClockWise()), Block.UPDATE_CLIENTS);
-            } else {
-                pLevel.setBlock(pPos, pState.setValue(MODE, RotationMode.ROTATING_RIGHT)
-                        .setValue(FACING, pState.getValue(FACING).getClockWise()), Block.UPDATE_CLIENTS);
+        if (pState.getValue(MODE) == RotationMode.STATIC && pLevel.getMoonPhase() == 0 && pLevel.isNight()) {
+            BlockState below = pLevel.getBlockState(pPos.below());
+            Direction facing = pState.getValue(FACING);
+            boolean moved = false;
+            if (pLevel.random.nextBoolean() && canSee(pLevel, pPos, facing.getCounterClockWise())) {
+                Direction dir = facing.getCounterClockWise();
+                rotateWithBelow(pState, pLevel, pPos, below, dir, RotationMode.ROTATING_LEFT);
+                moved = true;
+            } else if (canSee(pLevel, pPos, facing.getClockWise())) {
+                Direction dir = facing.getClockWise();
+                rotateWithBelow(pState, pLevel, pPos, below, dir, RotationMode.ROTATING_RIGHT);
+                moved = true;
             }
-
-            pLevel.playSound(null, pPos, Moyai.MOYAI_ROTATE.get(), SoundSource.BLOCKS, 1, 1);
-
-            pLevel.scheduleTick(pPos, this, 2 * 20 + pLevel.getRandom().nextInt(40));
+            if (moved) {
+                pLevel.playSound(null, pPos, Moyai.MOYAI_ROTATE.get(), SoundSource.BLOCKS, 1, 1);
+                pLevel.scheduleTick(pPos, this, 2 * 20 + pLevel.getRandom().nextInt(40));
+            }
+            return;
         }
-        super.randomTick(pState, pLevel, pPos, pRandom);
+        if (pLevel.random.nextFloat() < 0.3) {
+            long count = pLevel.getPoiManager().getCountInRange(p -> p.is(Moyai.MOYAI_POI_TAG), pPos, 10, PoiManager.Occupancy.ANY);
+            if (count >= 5) {
+                pLevel.playSound(null, pPos, Moyai.MOYAI_THINK.get(), SoundSource.BLOCKS, 0.5f,
+                        1 + pLevel.random.nextFloat() * 0.1f - pLevel.random.nextFloat() * 0.07f);
+            }
+        }
+    }
+
+    @NotNull
+    private static boolean canSee(ServerLevel pLevel, BlockPos pos, Direction dir) {
+        return !pLevel.getBlockState(pos.relative(dir)).isRedstoneConductor(pLevel, pos);
     }
 
     @Override
     public void tick(BlockState pState, ServerLevel pLevel, BlockPos pPos, RandomSource pRand) {
-
         var mode = pState.getValue(MODE);
-        if (mode != RotationMode.STATIC) {
+        boolean bottom = pState.getValue(BOTTOM);
+        if (mode != RotationMode.STATIC && !bottom) {
+            BlockState below = pLevel.getBlockState(pPos.below());
+            Direction dir;
             if (mode == RotationMode.ROTATING_RIGHT) {
-                pLevel.setBlockAndUpdate(pPos, pState.setValue(MODE, RotationMode.STATIC)
-                        .setValue(FACING, pState.getValue(FACING).getCounterClockWise()));
+                dir = pState.getValue(FACING).getCounterClockWise();
             } else {
-                pLevel.setBlockAndUpdate(pPos, pState.setValue(MODE, RotationMode.STATIC)
-                        .setValue(FACING, pState.getValue(FACING).getClockWise()));
+                dir = pState.getValue(FACING).getClockWise();
             }
+            rotateWithBelow(pState, pLevel, pPos, below, dir, RotationMode.STATIC);
             pLevel.playSound(null, pPos, Moyai.MOYAI_ROTATE.get(), SoundSource.BLOCKS, 1, 0.8f);
         }
         super.tick(pState, pLevel, pPos, pRand);
+        if (bottom) {
+            BlockState above = pLevel.getBlockState(pPos.above());
+            if (above.is(this)) {
+                above.tick(pLevel, pPos.above(), pRand);
+            }
+        }
+
+    }
+
+    private void rotateWithBelow(BlockState pState, ServerLevel pLevel, BlockPos pPos, BlockState below, Direction dir, RotationMode mode) {
+        pLevel.setBlock(pPos, pState.setValue(MODE, mode).setValue(FACING, dir), Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS);
+        if (isMoyaiSameFacing(pState, below) && below.getValue(BOTTOM)) {
+            pLevel.setBlock(pPos.below(), below.setValue(FACING, dir), Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS);
+        }
+
     }
 
     @Override

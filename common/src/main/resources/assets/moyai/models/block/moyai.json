@@ -7,6 +7,6 @@
     "east": "moyai:block/moyai_right",
     "west": "moyai:block/moyai_left",
     "up": "moyai:block/moyai_top",
-    "down": "moyai:block/moyai_top"
+    "down": "moyai:block/moyai_mid"
   }
 }

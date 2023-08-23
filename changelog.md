@@ -1,1 +1,1 @@
-- fixed spawning
+fixed bottom bottom texture
