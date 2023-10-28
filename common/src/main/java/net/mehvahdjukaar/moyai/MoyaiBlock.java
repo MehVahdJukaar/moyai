@@ -27,10 +27,7 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -44,7 +41,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -313,22 +312,25 @@ public class MoyaiBlock extends FallingBlock {
     @Override
     public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, RandomSource pRandom) {
         //only on full moon
-        if (pState.getValue(MODE) == RotationMode.STATIC && pLevel.getMoonPhase() == 0 && pLevel.isNight()) {
-            BlockState below = pLevel.getBlockState(pPos.below());
-            Direction facing = pState.getValue(FACING);
-            boolean moved = false;
-            if (pLevel.random.nextBoolean() && canSee(pLevel, pPos, facing.getCounterClockWise())) {
-                Direction dir = facing.getCounterClockWise();
-                rotateWithBelow(pState, pLevel, pPos, below, dir, RotationMode.ROTATING_LEFT);
-                moved = true;
-            } else if (canSee(pLevel, pPos, facing.getClockWise())) {
-                Direction dir = facing.getClockWise();
-                rotateWithBelow(pState, pLevel, pPos, below, dir, RotationMode.ROTATING_RIGHT);
-                moved = true;
-            }
-            if (moved) {
-                pLevel.playSound(null, pPos, Moyai.MOYAI_ROTATE.get(), SoundSource.BLOCKS, 1, 1);
-                pLevel.scheduleTick(pPos, this, 2 * 20 + pLevel.getRandom().nextInt(40));
+        if (pState.getValue(MODE) == RotationMode.STATIC && pLevel.isNight()) {
+            int i = pLevel.getMoonPhase();
+            if (i == 0 || i == 4) {
+                BlockState below = pLevel.getBlockState(pPos.below());
+                Direction facing = pState.getValue(FACING);
+                Direction dir = null;
+                if (pLevel.random.nextBoolean() && canSee(pLevel, pPos, facing.getCounterClockWise())) {
+                    dir = facing.getCounterClockWise();
+                    rotateWithBelow(pState, pLevel, pPos, below, dir, RotationMode.ROTATING_LEFT);
+                } else if (canSee(pLevel, pPos, facing.getClockWise())) {
+                    dir = facing.getClockWise();
+                    rotateWithBelow(pState, pLevel, pPos, below, dir, RotationMode.ROTATING_RIGHT);
+                }
+                if (dir != null) {
+                    pLevel.playSound(null, pPos, Moyai.MOYAI_ROTATE.get(), SoundSource.BLOCKS, 1, 1);
+                    pLevel.scheduleTick(pPos, this, 2 * 20 + pLevel.getRandom().nextInt(40));
+
+                    scarePlayers(pLevel, pPos, dir);
+                }
             }
             return;
         }
@@ -337,6 +339,23 @@ public class MoyaiBlock extends FallingBlock {
             if (count >= 5) {
                 pLevel.playSound(null, pPos, Moyai.MOYAI_THINK.get(), SoundSource.BLOCKS, 0.5f,
                         1 + pLevel.random.nextFloat() * 0.1f - pLevel.random.nextFloat() * 0.07f);
+            }
+        }
+    }
+
+    private static void scarePlayers(ServerLevel pLevel, BlockPos pPos, Direction dir) {
+        for (Player p : pLevel.getEntitiesOfClass(Player.class, new AABB(pPos).inflate(5))) {
+            Vec3 eyePosition = p.getEyePosition();
+            var c = pLevel.clip(new ClipContext(eyePosition,
+                    pPos.getCenter(),
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, p));
+            if (c.getBlockPos().equals(pPos)) {
+                Vec3 facingMoyai = new Vec3(dir.getOpposite().step());
+                Vec3 playerFacing = p.getViewVector(0).normalize();
+                double dot = facingMoyai.dot(playerFacing);
+                if (dot > 0.6) {
+                    p.playNotifySound(Moyai.MOYAI_BOOM_SOUND.get(), SoundSource.BLOCKS, 0.05f, 1);
+                }
             }
         }
     }
@@ -360,6 +379,8 @@ public class MoyaiBlock extends FallingBlock {
             }
             rotateWithBelow(pState, pLevel, pPos, below, dir, RotationMode.STATIC);
             pLevel.playSound(null, pPos, Moyai.MOYAI_ROTATE.get(), SoundSource.BLOCKS, 1, 0.8f);
+
+            scarePlayers(pLevel, pPos, dir);
         }
         super.tick(pState, pLevel, pPos, pRand);
         if (bottom) {
@@ -368,6 +389,7 @@ public class MoyaiBlock extends FallingBlock {
                 above.tick(pLevel, pPos.above(), pRand);
             }
         }
+
 
     }
 

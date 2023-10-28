@@ -42,9 +42,11 @@ public class Moyai {
     public static final Supplier<Block> MOYAI_BLOCK = RegHelper.registerBlock(res("moyai"), MoyaiBlock::new);
     public static final Supplier<BlockItem> MOYAI_ITEM = RegHelper.registerItem(res("moyai"), () ->
             new BlockItem(MOYAI_BLOCK.get(), (new Item.Properties()).rarity(Rarity.RARE)));
+
     public static final Supplier<PoiType> MOYAI_POI = RegHelper.register(res("moyai"), () ->
             new PoiType(ImmutableSet.<BlockState>builder().addAll(MOYAI_BLOCK.get().getStateDefinition().getPossibleStates()).build(),
             1, 1), Registries.POINT_OF_INTEREST_TYPE);
+
     public static final TagKey<PoiType> MOYAI_POI_TAG = TagKey.create(Registries.POINT_OF_INTEREST_TYPE, res("moyai"));
 
     public static final Supplier<GameEvent> MOYAI_BOOM_EVENT = RegHelper.register(res("moyai_boom"),
