@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.NoteBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -56,6 +57,7 @@ public class Moyai {
 
     public static void commonInit() {
         RegHelper.addItemsToTabsRegistration(Moyai::onAddItemToTabs);
+        PlatHelper.addCommonSetup(Moyai::commonSetup);
     }
 
     private static void onAddItemToTabs(RegHelper.ItemToTabEvent event) {

@@ -64,7 +64,7 @@ subprojects {
         curseforge {
             apiKey = env.CURSEFORGE_TOKEN
             project {
-                id = "moyai"
+                id = project_id
                 changelog = changelogText
                 releaseType = 'release'
                 addGameVersion rootProject.minecraft_version
@@ -105,11 +105,33 @@ allprojects {
 
         mavenLocal()
 
+
         maven { url "https://maven.parchmentmc.org" }
 
         maven {
             url = "https://www.cursemaven.com"
             allowInsecureProtocol = true
+        }
+
+        maven {
+            url "https://maven.firstdarkdev.xyz/snapshots"
+        }
+        maven { url 'https://jitpack.io' }
+
+        maven {
+            name = "TerraformersMC"
+            url = "https://maven.terraformersmc.com/"
+        }
+        maven {
+            name = 'Ladysnake Mods'
+            url = 'https://maven.ladysnake.org/releases'
+        }
+        maven {
+            url = 'https://maven.neoforged.net'
+        }
+
+        repositories {
+            maven { url "https://api.modrinth.com/maven" }
         }
     }
 

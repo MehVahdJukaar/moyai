@@ -18,8 +18,6 @@ public class MoyaiFabric implements ModInitializer {
 
         Moyai.commonInit();
 
-        PlatHelper.addCommonSetup(Moyai::commonSetup);
-
         BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.MUSHROOM_FIELDS),
                 GenerationStep.Decoration.UNDERGROUND_DECORATION,
                 ResourceKey.create(Registries.PLACED_FEATURE, Moyai.res("moyai_mushroom")));

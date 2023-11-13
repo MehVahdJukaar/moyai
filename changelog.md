@@ -1,1 +1,1 @@
-fixed bottom bottom texture
+fixed server crash due to new firework 
