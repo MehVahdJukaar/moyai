@@ -1,6 +1,6 @@
 {
   "type": "forge:add_features",
-  "biomes": "#forge:is_mushroom",
+  "biomes": "#c:is_mushroom",
   "features": "moyai:moyai_mushroom",
   "step": "vegetal_decoration"
 }

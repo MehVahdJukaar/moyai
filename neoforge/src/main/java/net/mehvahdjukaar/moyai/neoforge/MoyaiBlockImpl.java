@@ -1,9 +1,9 @@
-package net.mehvahdjukaar.moyai.forge;
+package net.mehvahdjukaar.moyai.neoforge;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraftforge.common.Tags;
+import net.neoforged.neoforge.common.Tags;
 
 public class MoyaiBlockImpl {
     public static boolean isValidBiome(Holder<Biome> biome) {

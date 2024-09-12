@@ -41,7 +41,7 @@ public class MoyaiHeadLayer<T extends LivingEntity, M extends HierarchicalModel<
         }
     }
 
-    public static void translateToHead(PoseStack stack) {
+    private static void translateToHead(PoseStack stack) {
         stack.translate(0.0D, -0.25D, 0.0D);
         stack.mulPose(RotHlpr.Y180);
         stack.scale(0.625F, -0.625F, -0.625F);

@@ -1,5 +1,6 @@
 package net.mehvahdjukaar.moyai;
 
+import com.mojang.serialization.MapCodec;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -18,6 +19,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -45,34 +47,20 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Locale;
 
 public class MoyaiBlock extends FallingBlock {
+
+    public static final MapCodec<MoyaiBlock> CODEC = simpleCodec(MoyaiBlock::new);
+
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty BOTTOM = BlockStateProperties.BOTTOM;
     public static final EnumProperty<RotationMode> MODE = EnumProperty.create("mode", RotationMode.class);
 
-
-    public enum RotationMode implements StringRepresentable {
-        STATIC, ROTATING_LEFT, ROTATING_RIGHT;
-
-        @Override
-        public String toString() {
-            return this.getSerializedName();
-        }
-
-        @Override
-        public String getSerializedName() {
-            return this.name().toLowerCase(Locale.ROOT);
-        }
-    }
-
-    protected MoyaiBlock() {
-        super(BlockBehaviour.Properties.copy(Blocks.BASALT)
-                .randomTicks()
-                .strength(5, 4));
+    protected MoyaiBlock(Properties pProperties) {
+        super(pProperties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(BOTTOM, false)
                 .setValue(MODE, RotationMode.STATIC));
@@ -136,7 +124,7 @@ public class MoyaiBlock extends FallingBlock {
     private static long LAST_GREETED_TIME = -24000;
 
     public static boolean maybeEatSoap(ItemStack stack, BlockState state, BlockPos pos, Level level, @Nullable Player player) {
-        if (BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().equals("soap") && Moyai.SUPP_INSTALLED) {
+        if (Moyai.SUPP_INSTALLED && stack.is(Moyai.SOAP.get())) {
 
             BlockPos facingPos = pos.relative(state.getValue(FACING));
             if (level.getBlockState(facingPos).isAir()) {
@@ -145,8 +133,7 @@ public class MoyaiBlock extends FallingBlock {
 
                     player.displayClientMessage(Component.translatable("message.moyai.soap"), true);
                 } else {
-                    level.setBlockAndUpdate(facingPos, BuiltInRegistries.BLOCK.get(
-                            new ResourceLocation("supplementaries:bubble_block")).defaultBlockState());
+                    level.setBlockAndUpdate(facingPos, Moyai.BUBBLE_BLOCK.get().defaultBlockState());
                 }
                 return true;
             }
@@ -155,32 +142,29 @@ public class MoyaiBlock extends FallingBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        ItemStack stack = pPlayer.getItemInHand(pHand);
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (Utils.getID(stack.getItem()).toString().equals("yippee:moyai_statue")) {
-            if (pLevel.isClientSide) {
-                pPlayer.displayClientMessage(Component.translatable("message.moyai.child"), true);
+            if (level.isClientSide) {
+                player.displayClientMessage(Component.translatable("message.moyai.child"), true);
             }
-            return InteractionResult.sidedSuccess(pLevel.isClientSide);
+            return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
 
-        if (maybeEatSoap(stack, pState, pPos, pLevel, pPlayer)) {
-            //TODO: finish this
-            return InteractionResult.sidedSuccess(pLevel.isClientSide);
+        if (maybeEatSoap(stack, state, pos, level, player)) {
+            return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
 
-        if (pLevel.isClientSide) {
-            long time = pLevel.getDayTime();
+        if (level.isClientSide) {
+            long time = level.getDayTime();
             if (Math.abs(time - LAST_GREETED_TIME) >= 12000) {
                 LAST_GREETED_TIME = time;
-                pPlayer.displayClientMessage(Component.translatable("message.moyai.angelo"), true);
-                pPlayer.swing(pHand);
+                player.displayClientMessage(Component.translatable("message.moyai.angelo"), true);
+                player.swing(hand);
             }
             //doest return success since its client only and we want to be able to place blocks with sounds & stuff
             // return InteractionResult.SUCCESS;
         }
-
-        return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     //only called by worldgen
@@ -235,6 +219,11 @@ public class MoyaiBlock extends FallingBlock {
     public void setPlacedBy(Level pLevel, BlockPos pPos, BlockState pState, @org.jetbrains.annotations.Nullable LivingEntity pPlacer, ItemStack pStack) {
         super.setPlacedBy(pLevel, pPos, pState, pPlacer, pStack);
         pLevel.scheduleTick(pPos, this, this.getDelayAfterPlace());
+    }
+
+    @Override
+    protected MapCodec<? extends MoyaiBlock> codec() {
+        return CODEC;
     }
 
     @Override
@@ -415,5 +404,20 @@ public class MoyaiBlock extends FallingBlock {
 
     @ExpectPlatform
     private static void setShaking(BlockPos pPos, int pParam) {
+    }
+
+
+    public enum RotationMode implements StringRepresentable {
+        STATIC, ROTATING_LEFT, ROTATING_RIGHT;
+
+        @Override
+        public String toString() {
+            return this.getSerializedName();
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name().toLowerCase(Locale.ROOT);
+        }
     }
 }

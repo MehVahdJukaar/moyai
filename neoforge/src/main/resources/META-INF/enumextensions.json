@@ -1,0 +1,10 @@
+{
+  "entries": [
+    {
+      "enum": "net/minecraft/world/item/component/FireworkExplosion$Shape",
+      "name": "MOYAI_MOYAI",
+      "constructor": "(ILjava/lang/String)V",
+      "parameters": [ -1, "moyai:moyai"]
+    }
+  ]
+}

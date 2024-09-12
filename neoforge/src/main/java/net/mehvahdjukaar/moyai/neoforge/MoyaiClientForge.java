@@ -1,4 +1,4 @@
-package net.mehvahdjukaar.moyai.forge;
+package net.mehvahdjukaar.moyai.neoforge;
 
 import net.mehvahdjukaar.moyai.Moyai;
 import net.mehvahdjukaar.moyai.MoyaiHeadLayer;
@@ -10,12 +10,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -23,11 +23,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@Mod.EventBusSubscriber(modid = Moyai.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Moyai.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class MoyaiClientForge {
 
 
-    @Mod.EventBusSubscriber(modid = Moyai.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    @EventBusSubscriber(modid = Moyai.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
     public static class Rumbler {
         private static final int SHAKE_DURATION = 2 * 20;
         private static final int MAX_DIST = 16;
@@ -59,10 +59,8 @@ public class MoyaiClientForge {
         }
 
         @SubscribeEvent
-        public static void onClientTick(TickEvent.ClientTickEvent event) {
-            if (event.phase == TickEvent.Phase.END) {
-                animationCounter++;
-            }
+        public static void onClientTick(ClientTickEvent.Pre event) {
+            animationCounter++;
         }
 
         @SubscribeEvent
@@ -79,7 +77,7 @@ public class MoyaiClientForge {
 
 
                     float duration = e.getValue();
-                    duration -= event.getPartialTick();
+                    duration -= (float) event.getPartialTick();
                     if (duration < 0) {
                         toRemove.add(pos);
                     } else {
