@@ -1,1 +1,1 @@
-1.21
+fixed loot, break speed and not spawning on beaches

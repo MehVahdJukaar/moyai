@@ -19,11 +19,11 @@ public class MoyaiFabric implements ModInitializer {
         Moyai.commonInit();
 
         BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.MUSHROOM_FIELDS),
-                GenerationStep.Decoration.UNDERGROUND_DECORATION,
+                GenerationStep.Decoration.VEGETAL_DECORATION,
                 ResourceKey.create(Registries.PLACED_FEATURE, Moyai.res("moyai_mushroom")));
 
-        BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_BEACH),
-                GenerationStep.Decoration.UNDERGROUND_DECORATION,
+        BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.BEACH),
+                GenerationStep.Decoration.VEGETAL_DECORATION,
                 ResourceKey.create(Registries.PLACED_FEATURE, Moyai.res("moyai_beach")));
 
     }
