@@ -6,7 +6,6 @@ import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -30,7 +29,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -128,7 +126,7 @@ public class MoyaiBlock extends FallingBlock {
 
             BlockPos facingPos = pos.relative(state.getValue(FACING));
             if (level.getBlockState(facingPos).isAir()) {
-                if (player == null || player.isCreative()) stack.shrink(1);
+                if (player == null || !player.isCreative()) stack.shrink(1);
                 if (level.isClientSide && player != null) {
 
                     player.displayClientMessage(Component.translatable("message.moyai.soap"), true);
@@ -172,8 +170,6 @@ public class MoyaiBlock extends FallingBlock {
     public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         if (level instanceof WorldGenRegion) {
             //if this is called during world gen
-            if (!isValidBiome(level.getBiome(pos))) return false;
-
             Direction direction = state.getValue(FACING);
             for (Direction dir : Direction.Plane.HORIZONTAL) {
                 BlockState s = level.getBlockState(pos.relative(dir));
@@ -184,11 +180,6 @@ public class MoyaiBlock extends FallingBlock {
             }
         }
         return true;
-    }
-
-    @PlatformImpl
-    private static boolean isValidBiome(Holder<Biome> biome) {
-        throw new AssertionError();
     }
 
 
@@ -351,7 +342,7 @@ public class MoyaiBlock extends FallingBlock {
 
     @NotNull
     private static boolean canSee(ServerLevel pLevel, BlockPos pos, Direction dir) {
-        return !pLevel.getBlockState(pos.relative(dir)).isRedstoneConductor(pLevel, pos);
+        return !pLevel.getBlockState(pos.relative(dir)).isRedstoneConductor(pLevel, pos.relative(dir));
     }
 
     @Override

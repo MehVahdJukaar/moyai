@@ -14,5 +14,11 @@
       "id": "spawn:volcanic_island",
       "required": false
     }
+  ],
+  "remove": [
+    "#c:is_cold"
+  ],
+  "fabric:remove": [
+    "#c:is_cold"
   ]
 }

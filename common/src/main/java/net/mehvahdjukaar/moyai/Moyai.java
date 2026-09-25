@@ -56,6 +56,7 @@ public class Moyai {
 
     public static final TagKey<PoiType> MOYAI_POI_TAG = TagKey.create(Registries.POINT_OF_INTEREST_TYPE, res("moyai"));
     public static final TagKey<Biome> HAS_MOYAI_BEACH = TagKey.create(Registries.BIOME, res("has_moyai_beach"));
+    public static final TagKey<Biome> HAS_MOYAI_MUSHROOM = TagKey.create(Registries.BIOME, res("has_moyai_mushroom"));
 
     public static final RegSupplier<GameEvent> MOYAI_BOOM_EVENT = RegHelper.register(res("moyai_boom"),
             () -> new GameEvent(16), Registries.GAME_EVENT);

@@ -1,1 +1,1 @@
-fixed loot, break speed and not spawning on beaches
+- improved tags
