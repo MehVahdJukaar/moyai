@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "#c:is_mushroom"
+  ],
+  "remove": [
+    "#c:is_cold"
+  ],
+  "fabric:remove": [
+    "#c:is_cold"
+  ]
+}
