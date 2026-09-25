@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:is_beach",
+    {
+      "id": "#c:is_beach",
+      "required": false
+    },
+    {
+      "id": "spawn:tropical_island",
+      "required": false
+    },
+    {
+      "id": "spawn:volcanic_island",
+      "required": false
+    }
+  ]
+}

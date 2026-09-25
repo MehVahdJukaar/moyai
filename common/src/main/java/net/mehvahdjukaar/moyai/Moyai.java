@@ -18,6 +18,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -54,6 +55,7 @@ public class Moyai {
                     1, 1), Registries.POINT_OF_INTEREST_TYPE);
 
     public static final TagKey<PoiType> MOYAI_POI_TAG = TagKey.create(Registries.POINT_OF_INTEREST_TYPE, res("moyai"));
+    public static final TagKey<Biome> HAS_MOYAI_BEACH = TagKey.create(Registries.BIOME, res("has_moyai_beach"));
 
     public static final RegSupplier<GameEvent> MOYAI_BOOM_EVENT = RegHelper.register(res("moyai_boom"),
             () -> new GameEvent(16), Registries.GAME_EVENT);
