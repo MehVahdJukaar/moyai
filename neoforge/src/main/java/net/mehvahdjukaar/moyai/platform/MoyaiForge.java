@@ -1,11 +1,7 @@
 package net.mehvahdjukaar.moyai.platform;
 
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
-import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
 import net.mehvahdjukaar.moyai.Moyai;
-import net.minecraft.world.item.FireworkRocketItem;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.FireworkExplosion;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -23,11 +19,9 @@ public class MoyaiForge {
     public static final FireworkExplosion.Shape MOYAI_FIREWORK = FireworkExplosion.Shape.valueOf("MOYAI_MOYAI");
 
     public MoyaiForge(IEventBus bus) {
-        RegHelper.startRegisteringFor(bus);
         Moyai.commonInit();
         NeoForge.EVENT_BUS.addListener(MoyaiForge::onNoteBlockPlayer);
 
-        PlatHelper.addCommonSetup(() -> RegHelper.registerFireworkRecipe(MOYAI_FIREWORK, Moyai.MOYAI_ITEM.get()));
         if (PlatHelper.getPhysicalSide().isClient()) {
             FireworkShapeFactoryRegistry.register(MOYAI_FIREWORK, MoyaiFireworkShape::create);
         }

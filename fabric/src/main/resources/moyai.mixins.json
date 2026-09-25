@@ -4,7 +4,6 @@
   "package": "net.mehvahdjukaar.moyai.mixins.fabric",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "IronGolemLayerMixin",
     "IronGolemRendererMixin"
   ],
   "mixins": [

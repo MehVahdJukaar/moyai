@@ -1,5 +1,5 @@
 {
-  "feature": "moyai:moyai_patch_beach",
+  "feature": "moyai:moyai",
   "placement": [
     {
       "type": "minecraft:rarity_filter",
@@ -14,6 +14,60 @@
     },
     {
       "type": "minecraft:biome"
+    },
+    {
+      "type": "minecraft:count",
+      "count": 35
+    },
+    {
+      "type": "minecraft:random_offset",
+      "xz_spread": {
+        "type": "minecraft:trapezoid",
+        "max": 10,
+        "min": -10,
+        "plateau": 0
+      },
+      "y_spread": {
+        "type": "minecraft:trapezoid",
+        "max": 3,
+        "min": -3,
+        "plateau": 0
+      }
+    },
+    {
+      "predicate": {
+        "predicates": [
+          {
+            "blocks": "minecraft:air",
+            "type": "minecraft:matching_blocks"
+          },
+          {
+            "predicates": [
+              {
+                "offset": [
+                  0,
+                  -1,
+                  0
+                ],
+                "tag": "minecraft:sand",
+                "type": "minecraft:matching_block_tag"
+              },
+              {
+                "offset": [
+                  0,
+                  -1,
+                  0
+                ],
+                "blocks": "minecraft:mycelium",
+                "type": "minecraft:matching_blocks"
+              }
+            ],
+            "type": "minecraft:any_of"
+          }
+        ],
+        "type": "minecraft:all_of"
+      },
+      "type": "minecraft:block_predicate_filter"
     }
   ]
 }

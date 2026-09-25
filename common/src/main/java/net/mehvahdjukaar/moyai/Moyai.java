@@ -10,7 +10,7 @@ import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -36,19 +36,19 @@ import java.util.function.Supplier;
 public class Moyai {
     public static final String MOD_ID = "moyai";
 
-    public static ResourceLocation res(String name) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
+    public static Identifier res(String name) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, name);
     }
 
-    public static final Supplier<SoundEvent> MOYAI_BOOM_SOUND = RegHelper.registerSound(res("record.moyai_boom"));
+    public static final RegSupplier<SoundEvent> MOYAI_BOOM_SOUND = RegHelper.registerSound(res("record.moyai_boom"));
     public static final Supplier<SoundEvent> MOYAI_ROTATE = RegHelper.registerSound(res("block.moyai_rotate"));
     public static final Supplier<SoundEvent> MOYAI_THINK = RegHelper.registerSound(res("block.moyai_think"));
-    public static final Supplier<Block> MOYAI_BLOCK = RegHelper.registerBlock(res("moyai"), () ->
-            new MoyaiBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BASALT)
+    public static final Supplier<Block> MOYAI_BLOCK = RegHelper.registerBlock(res("moyai"), MoyaiBlock::new,
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BASALT)
                     .randomTicks()
-                    .strength(5, 4)));
-    public static final Supplier<BlockItem> MOYAI_ITEM = RegHelper.registerItem(res("moyai"), () ->
-            new BlockItem(MOYAI_BLOCK.get(), (new Item.Properties()).rarity(Rarity.RARE)));
+                    .strength(5, 4));
+    public static final Supplier<BlockItem> MOYAI_ITEM = RegHelper.registerBlockItem(res("moyai"), MOYAI_BLOCK,
+            new Item.Properties().rarity(Rarity.RARE));
 
     public static final Supplier<PoiType> MOYAI_POI = RegHelper.register(res("moyai"), () ->
             new PoiType(ImmutableSet.<BlockState>builder().addAll(MOYAI_BLOCK.get().getStateDefinition().getPossibleStates()).build(),
@@ -63,9 +63,9 @@ public class Moyai {
 
     public static final boolean SUPP_INSTALLED = PlatHelper.isModLoaded("supplementaries");
 
-    public static final Supplier<Item> SOAP = Suppliers.memoize(() -> BuiltInRegistries.ITEM.getOptional(ResourceLocation.tryParse("supplementaries:soap"))
+    public static final Supplier<Item> SOAP = Suppliers.memoize(() -> BuiltInRegistries.ITEM.getOptional(Identifier.tryParse("supplementaries:soap"))
             .orElse(null));
-    public static final Supplier<Block> BUBBLE_BLOCK = Suppliers.memoize(() -> BuiltInRegistries.BLOCK.getOptional(ResourceLocation.tryParse("supplementaries:bubble_block"))
+    public static final Supplier<Block> BUBBLE_BLOCK = Suppliers.memoize(() -> BuiltInRegistries.BLOCK.getOptional(Identifier.tryParse("supplementaries:bubble_block"))
             .orElse(null));
 
     public static void commonInit() {

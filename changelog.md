@@ -1,1 +1,1 @@
-- improved tags
+- updated to 26.1.2

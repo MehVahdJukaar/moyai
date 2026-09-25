@@ -9,7 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.WorldGenRegion;
@@ -18,12 +18,12 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
-import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -39,8 +39,8 @@ import net.minecraft.world.level.block.state.pattern.BlockPatternBuilder;
 import net.minecraft.world.level.block.state.predicate.BlockStatePredicate;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -53,7 +53,7 @@ public class MoyaiBlock extends FallingBlock {
 
     public static final MapCodec<MoyaiBlock> CODEC = simpleCodec(MoyaiBlock::new);
 
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty BOTTOM = BlockStateProperties.BOTTOM;
     public static final EnumProperty<RotationMode> MODE = EnumProperty.create("mode", RotationMode.class);
 
@@ -65,8 +65,8 @@ public class MoyaiBlock extends FallingBlock {
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos currentPos, BlockPos neighborPos) {
-        level.scheduleTick(currentPos, this, this.getDelayAfterPlace());
+    public BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos currentPos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+        ticks.scheduleTick(currentPos, this, this.getDelayAfterPlace());
         if (direction == Direction.UP) {
             boolean shouldBeBottom = isMoyaiSameFacing(state, neighborState) &&
                     !isMoyaiSameFacing(state, level.getBlockState(currentPos.below()));
@@ -84,7 +84,7 @@ public class MoyaiBlock extends FallingBlock {
             }
 
         }
-        return super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
+        return super.updateShape(state, level, ticks, currentPos, direction, neighborPos, neighborState, random);
     }
 
     private boolean isMoyaiSameFacing(BlockState state, BlockState neighborState) {
@@ -127,9 +127,9 @@ public class MoyaiBlock extends FallingBlock {
             BlockPos facingPos = pos.relative(state.getValue(FACING));
             if (level.getBlockState(facingPos).isAir()) {
                 if (player == null || !player.isCreative()) stack.shrink(1);
-                if (level.isClientSide && player != null) {
+                if (level.isClientSide() && player != null) {
 
-                    player.displayClientMessage(Component.translatable("message.moyai.soap"), true);
+                    player.sendOverlayMessage(Component.translatable("message.moyai.soap"));
                 } else {
                     level.setBlockAndUpdate(facingPos, Moyai.BUBBLE_BLOCK.get().defaultBlockState());
                 }
@@ -140,23 +140,23 @@ public class MoyaiBlock extends FallingBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (Utils.getID(stack.getItem()).toString().equals("yippee:moyai_statue")) {
-            if (level.isClientSide) {
-                player.displayClientMessage(Component.translatable("message.moyai.child"), true);
+            if (level.isClientSide()) {
+                player.sendOverlayMessage(Component.translatable("message.moyai.child"));
             }
-            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         if (maybeEatSoap(stack, state, pos, level, player)) {
-            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
-        if (level.isClientSide) {
-            long time = level.getDayTime();
+        if (level.isClientSide()) {
+            long time = level.getOverworldClockTime();
             if (Math.abs(time - LAST_GREETED_TIME) >= 12000) {
                 LAST_GREETED_TIME = time;
-                player.displayClientMessage(Component.translatable("message.moyai.angelo"), true);
+                player.sendOverlayMessage(Component.translatable("message.moyai.angelo"));
                 player.swing(hand);
             }
             //doest return success since its client only and we want to be able to place blocks with sounds & stuff
@@ -199,7 +199,7 @@ public class MoyaiBlock extends FallingBlock {
             level.levelEvent(1045, pos, 0);
             this.trySpawnGolem(level, pos, false);
         }
-        BlockState newState = this.updateShape(state, Direction.UP, level.getBlockState(pos.above()), level, pos, pos.above());
+        BlockState newState = this.updateShape(state, level, level, pos, Direction.UP, pos.above(), level.getBlockState(pos.above()), level.getRandom());
         if (newState != state) level.setBlockAndUpdate(pos, newState);
     }
 
@@ -241,11 +241,12 @@ public class MoyaiBlock extends FallingBlock {
             }
 
             BlockPos blockpos = patternMatch.getBlock(1, 2, 0).getPos();
-            IronGolem irongolem = EntityType.IRON_GOLEM.create(pLevel);
+            IronGolem irongolem = EntityType.IRON_GOLEM.create(pLevel, EntitySpawnReason.TRIGGERED);
+            if (irongolem == null) return false;
             irongolem.setPlayerCreated(playerCreated);
             irongolem.setItemSlot(EquipmentSlot.HEAD, new ItemStack(this));
 
-            irongolem.moveTo(blockpos.getX() + 0.5D, blockpos.getY() + 0.05D, blockpos.getZ() + 0.5D, 0.0F, 0.0F);
+            irongolem.snapTo(blockpos.getX() + 0.5D, blockpos.getY() + 0.05D, blockpos.getZ() + 0.5D, 0.0F, 0.0F);
             pLevel.addFreshEntity(irongolem);
 
             for (ServerPlayer player : pLevel.getEntitiesOfClass(ServerPlayer.class, irongolem.getBoundingBox().inflate(5.0D))) {
@@ -255,7 +256,7 @@ public class MoyaiBlock extends FallingBlock {
             for (int i1 = 0; i1 < pattern.getWidth(); ++i1) {
                 for (int j1 = 0; j1 < pattern.getHeight(); ++j1) {
                     BlockInWorld matchBlock = patternMatch.getBlock(i1, j1, 0);
-                    pLevel.blockUpdated(matchBlock.getPos(), Blocks.AIR);
+                    pLevel.updateNeighborsAt(matchBlock.getPos(), Blocks.AIR);
                 }
             }
             return true;
@@ -292,13 +293,13 @@ public class MoyaiBlock extends FallingBlock {
     @Override
     public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, RandomSource pRandom) {
         //only on full moon
-        if (pState.getValue(MODE) == RotationMode.STATIC && pLevel.isNight()) {
-            int i = pLevel.getMoonPhase();
-            if (i == 0 || i == 4) {
+        if (pState.getValue(MODE) == RotationMode.STATIC && pLevel.isDarkOutside()) {
+            MoonPhase phase = pLevel.environmentAttributes().getValue(EnvironmentAttributes.MOON_PHASE, pPos.getCenter());
+            if (phase == MoonPhase.FULL_MOON || phase == MoonPhase.NEW_MOON) {
                 BlockState below = pLevel.getBlockState(pPos.below());
                 Direction facing = pState.getValue(FACING);
                 Direction dir = null;
-                if (pLevel.random.nextBoolean() && canSee(pLevel, pPos, facing.getCounterClockWise())) {
+                if (pRandom.nextBoolean() && canSee(pLevel, pPos, facing.getCounterClockWise())) {
                     dir = facing.getCounterClockWise();
                     rotateWithBelow(pState, pLevel, pPos, below, dir, RotationMode.ROTATING_LEFT);
                 } else if (canSee(pLevel, pPos, facing.getClockWise())) {
@@ -314,11 +315,11 @@ public class MoyaiBlock extends FallingBlock {
             }
             return;
         }
-        if (pLevel.random.nextFloat() < 0.3) {
+        if (pRandom.nextFloat() < 0.3) {
             long count = pLevel.getPoiManager().getCountInRange(p -> p.is(Moyai.MOYAI_POI_TAG), pPos, 10, PoiManager.Occupancy.ANY);
             if (count >= 5) {
                 pLevel.playSound(null, pPos, Moyai.MOYAI_THINK.get(), SoundSource.BLOCKS, 0.5f,
-                        1 + pLevel.random.nextFloat() * 0.1f - pLevel.random.nextFloat() * 0.07f);
+                        1 + pRandom.nextFloat() * 0.1f - pRandom.nextFloat() * 0.07f);
             }
         }
     }
@@ -333,8 +334,9 @@ public class MoyaiBlock extends FallingBlock {
                 Vec3 facingMoyai = new Vec3(dir.getOpposite().step());
                 Vec3 playerFacing = p.getViewVector(0).normalize();
                 double dot = facingMoyai.dot(playerFacing);
-                if (dot > 0.6) {
-                    p.playNotifySound(Moyai.MOYAI_BOOM_SOUND.get(), SoundSource.BLOCKS, 0.05f, 1);
+                if (dot > 0.6 && p instanceof ServerPlayer sp) {
+                    sp.connection.send(new ClientboundSoundPacket(Moyai.MOYAI_BOOM_SOUND, SoundSource.BLOCKS,
+                            sp.getX(), sp.getY(), sp.getZ(), 0.05f, 1, pLevel.getRandom().nextLong()));
                 }
             }
         }
@@ -385,7 +387,7 @@ public class MoyaiBlock extends FallingBlock {
     public boolean triggerEvent(BlockState pState, Level pLevel, BlockPos pPos, int pId, int pParam) {
         if (pId == 0) {
             pLevel.addParticle(ParticleTypes.NOTE, pPos.getX() + 0.5D, pPos.getY() + 1.2D + 1, pPos.getZ() + 0.5D, pParam / 24.0D, 0.0D, 0.0D);
-            if (pLevel.isClientSide) {
+            if (pLevel.isClientSide()) {
                 setShaking(pPos, pParam);
             }
             return true;

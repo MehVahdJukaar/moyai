@@ -3,11 +3,12 @@ package net.mehvahdjukaar.moyai.platform;
 import net.mehvahdjukaar.moyai.Moyai;
 import net.mehvahdjukaar.moyai.MoyaiHeadLayer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.HierarchicalModel;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -23,11 +24,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@EventBusSubscriber(modid = Moyai.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Moyai.MOD_ID, value = Dist.CLIENT)
 public class MoyaiClientForge {
 
 
-    @EventBusSubscriber(modid = Moyai.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
+    @EventBusSubscriber(modid = Moyai.MOD_ID, value = Dist.CLIENT)
     public static class Rumbler {
         private static final int SHAKE_DURATION = 2 * 20;
         private static final int MAX_DIST = 16;
@@ -100,7 +101,7 @@ public class MoyaiClientForge {
         addLayer(event.getRenderer(EntityType.IRON_GOLEM));
     }
 
-    private static <T extends LivingEntity, M extends HierarchicalModel<T>, R extends LivingEntityRenderer<T, M>> void addLayer(
+    private static <T extends LivingEntity, S extends LivingEntityRenderState, M extends EntityModel<S>, R extends LivingEntityRenderer<T, S, M>> void addLayer(
             @Nullable R renderer) {
         if (renderer != null) {
             renderer.addLayer(new MoyaiHeadLayer<>(renderer));

@@ -2,42 +2,35 @@ package net.mehvahdjukaar.moyai;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.mehvahdjukaar.moonlight.api.client.util.RotHlpr;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.HierarchicalModel;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.ItemInHandRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 
-public class MoyaiHeadLayer<T extends LivingEntity, M extends HierarchicalModel<T>> extends RenderLayer<T, M> {
+public class MoyaiHeadLayer<S extends LivingEntityRenderState, M extends EntityModel<S>> extends RenderLayer<S, M> {
 
     private final ModelPart head;
-    private final ItemInHandRenderer itemRenderer;
 
-    public MoyaiHeadLayer(RenderLayerParent<T, M> parent) {
+    public MoyaiHeadLayer(RenderLayerParent<S, M> parent) {
         super(parent);
-        this.itemRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getItemInHandRenderer();
         this.head = this.getParentModel().root().getChild("head");
     }
 
     @Override
-    public void render(PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight, T pLivingEntity, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
-        ItemStack itemstack = pLivingEntity.getItemBySlot(EquipmentSlot.HEAD);
-        if (!itemstack.isEmpty()) {
+    public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, S state, float yRot, float xRot) {
+        if (!state.headItem.isEmpty()) {
 
-            pMatrixStack.pushPose();
+            poseStack.pushPose();
 
-            this.head.translateAndRotate(pMatrixStack);
+            this.head.translateAndRotate(poseStack);
 
-            translateToHead(pMatrixStack);
-            itemRenderer.renderItem(pLivingEntity, itemstack, ItemDisplayContext.HEAD, false, pMatrixStack, pBuffer, pPackedLight);
+            translateToHead(poseStack);
+            state.headItem.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
 
-            pMatrixStack.popPose();
+            poseStack.popPose();
         }
     }
 
