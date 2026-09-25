@@ -102,7 +102,7 @@ public class Moyai {
         if (blockState.getValue(NoteBlock.INSTRUMENT) == NoteBlockInstrument.BASEDRUM) {
             BlockState below = level.getBlockState(pos.below());
             if (below.getBlock() instanceof MoyaiBlock && level instanceof ServerLevel serverLevel) {
-                level.gameEvent(null, MOYAI_BOOM_EVENT.getHolder(), pos);
+                level.gameEvent(null, MOYAI_BOOM_EVENT, pos);
 
                 int i = blockState.getValue(NoteBlock.NOTE);
                 float f = (float) Math.pow(2.0D, (i - 12) / 12.0D);
