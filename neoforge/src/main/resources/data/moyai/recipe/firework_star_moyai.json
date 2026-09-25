@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_special_firework_star",
+  "dye": "#minecraft:dyes",
+  "fuel": "minecraft:gunpowder",
+  "result": {
+    "id": "minecraft:firework_star"
+  },
+  "shapes": {
+    "moyai:moyai": "moyai:moyai"
+  },
+  "trail": "minecraft:diamond",
+  "twinkle": "minecraft:glowstone_dust"
+}
