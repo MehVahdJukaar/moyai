@@ -1,4 +1,4 @@
-package net.mehvahdjukaar.moyai.neoforge;
+package net.mehvahdjukaar.moyai.platform;
 
 import net.mehvahdjukaar.moyai.Moyai;
 import net.mehvahdjukaar.moyai.MoyaiHeadLayer;

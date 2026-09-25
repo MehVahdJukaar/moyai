@@ -1,7 +1,7 @@
 package net.mehvahdjukaar.moyai;
 
 import com.mojang.serialization.MapCodec;
-import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.mehvahdjukaar.candlelight.api.PlatformImpl;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -186,7 +186,7 @@ public class MoyaiBlock extends FallingBlock {
         return true;
     }
 
-    @ExpectPlatform
+    @PlatformImpl
     private static boolean isValidBiome(Holder<Biome> biome) {
         throw new AssertionError();
     }
@@ -402,7 +402,7 @@ public class MoyaiBlock extends FallingBlock {
         return super.triggerEvent(pState, pLevel, pPos, pId, pParam);
     }
 
-    @ExpectPlatform
+    @PlatformImpl
     private static void setShaking(BlockPos pPos, int pParam) {
     }
 

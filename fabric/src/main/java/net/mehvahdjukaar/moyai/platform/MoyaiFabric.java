@@ -1,4 +1,4 @@
-package net.mehvahdjukaar.moyai.fabric;
+package net.mehvahdjukaar.moyai.platform;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;

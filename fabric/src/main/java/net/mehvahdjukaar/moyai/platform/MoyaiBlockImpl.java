@@ -1,4 +1,4 @@
-package net.mehvahdjukaar.moyai.fabric;
+package net.mehvahdjukaar.moyai.platform;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;

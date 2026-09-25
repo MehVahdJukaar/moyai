@@ -1,4 +1,4 @@
-package net.mehvahdjukaar.moyai.neoforge;
+package net.mehvahdjukaar.moyai.platform;
 
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;

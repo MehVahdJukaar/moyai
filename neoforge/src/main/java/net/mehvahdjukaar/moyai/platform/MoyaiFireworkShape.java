@@ -1,4 +1,4 @@
-package net.mehvahdjukaar.moyai.neoforge;
+package net.mehvahdjukaar.moyai.platform;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
