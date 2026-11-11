@@ -1,1 +1,1 @@
-- updated to 26.1.2
+fixed loot
